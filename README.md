@@ -9,14 +9,6 @@ To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-c
 
 Once completed, chose one of the following two sections for next steps.
 
-### Try in Play With Docker
-
-To play in an already set up sandbox, in your browser, click the button below:
-
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
-
 ### Try on your Dev environment
 
 First clone the repo:
@@ -26,7 +18,92 @@ git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-Then run: `docker compose -f pwd.yml up -d`
+
+## FOR WINDOWS
+
+```sh
+export APPS_JSON_BASE64=$(base64 -w 0 ./development/apps.json)
+```
+
+## FOR MAC
+
+```sh
+base64 -i ./development/apps.json -o ./development/apps.json.b64
+
+export APPS_JSON_BASE64=$(base64 -i ./development/apps.json)
+```
+
+
+## Verify generated hash
+
+```sh
+echo $APPS_JSON_BASE64
+```
+
+## Docker build command
+
+```sh
+docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=PYTHON_VERSION=3.11.6 \
+  --build-arg=NODE_VERSION=18.18.2 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --no-cache \
+  --platform=linux/amd64 \
+  --tag=frappe-derlo:latest \
+  --file=images/custom/Containerfile .
+```
+
+
+### List all the images, you should see first_image in the list
+```sh
+docker images
+```
+
+### Run the docker image in the background using the -d tag
+```sh
+docker run -d frappe-derlo:latest
+```
+
+### List running images to get the container id of our image
+```sh
+docker ps
+```
+
+### exec into the container to check if all apps are in the image
+```sh
+docker exec -it {CONTAINER_ID} /bin/bash
+```
+
+## Push image
+```sh
+docker push frappe-derlo:latest
+```
+
+## Try image
+
+Replace image and erpnext install command in pwd.yml.
+
+```sh
+sed -i 's|frappe/erpnext:v15.45.5|frappe-derlo:latest' pwd.yml
+sed -i 's|--install-app erpnext|--install-app derlo|g' pwd.yml
+```
+
+## Start services
+
+```sh
+docker compose -p frappe-derlo -f pwd.yml up -d
+```
+
+Check site logs
+
+```sh
+docker logs gameplan-create-site-1 -f
+```
+
+Open site http://localhost:8080
+
 
 ### To run on ARM64 architecture follow this instructions
 
@@ -75,49 +152,3 @@ If you ran in a Dev Docker environment, to view container logs: `docker compose 
 - [Bench Console and VSCode Debugger](docs/bench-console-and-vscode-debugger.md)
 - [Connect to localhost services](docs/connect-to-localhost-services-from-containers-for-local-app-development.md)
 
-### [Troubleshoot](docs/troubleshoot.md)
-
-# Contributing
-
-If you want to contribute to this repo refer to [CONTRIBUTING.md](CONTRIBUTING.md)
-
-This repository is only for container related stuff. You also might want to contribute to:
-
-- [Frappe framework](https://github.com/frappe/frappe#contributing),
-- [ERPNext](https://github.com/frappe/erpnext#contributing),
-- [Frappe Bench](https://github.com/frappe/bench).
-
-
-## WINDOWS
-
-export APPS_JSON_BASE64=$(base64 -w 0 ./development/apps.json)
-
-## MAC
-
-export APPS_JSON_BASE64=$(echo ./development/apps.json | base64)
-
-
-## Docker build command
-
-docker build \
-  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
-  --build-arg=FRAPPE_BRANCH=version-15 \
-  --build-arg=PYTHON_VERSION=3.11.6 \
-  --build-arg=NODE_VERSION=18.18.2 \
-  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
-  --no-cache \
-  --tag=frappe-derlo:latest \
-  --file=images/custom/Containerfile .
-
-
-# List all the images, you should see first_image in the list
-docker images
-
-# Run the docker image in the background using the -d tag
-docker run -d first_image
-
-# List running images to get the container id of our image
-docker ps
-
-# exec into the container to check if all apps are in the image
-docker exec -it {CONTAINER_ID} /bin/bash
