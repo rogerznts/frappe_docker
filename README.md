@@ -86,3 +86,38 @@ This repository is only for container related stuff. You also might want to cont
 - [Frappe framework](https://github.com/frappe/frappe#contributing),
 - [ERPNext](https://github.com/frappe/erpnext#contributing),
 - [Frappe Bench](https://github.com/frappe/bench).
+
+
+## WINDOWS
+
+export APPS_JSON_BASE64=$(base64 -w 0 ./development/apps.json)
+
+## MAC
+
+export APPS_JSON_BASE64=$(echo ./development/apps.json | base64)
+
+
+## Docker build command
+
+docker build \
+  --build-arg=FRAPPE_PATH=https://github.com/frappe/frappe \
+  --build-arg=FRAPPE_BRANCH=version-15 \
+  --build-arg=PYTHON_VERSION=3.11.6 \
+  --build-arg=NODE_VERSION=18.18.2 \
+  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+  --no-cache \
+  --tag=frappe-derlo:latest \
+  --file=images/custom/Containerfile .
+
+
+# List all the images, you should see first_image in the list
+docker images
+
+# Run the docker image in the background using the -d tag
+docker run -d first_image
+
+# List running images to get the container id of our image
+docker ps
+
+# exec into the container to check if all apps are in the image
+docker exec -it {CONTAINER_ID} /bin/bash
