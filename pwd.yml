@@ -2,13 +2,14 @@ version: "3"
 
 services:
   backend:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
       restart_policy:
         condition: on-failure
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     environment:
@@ -18,7 +19,7 @@ services:
       MARIADB_ROOT_PASSWORD: admin
 
   configurator:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -43,11 +44,12 @@ services:
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
   create-site:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -87,6 +89,8 @@ services:
       test: mysqladmin ping -h localhost --password=admin
       interval: 1s
       retries: 20
+    ports:
+      3308:3306
     deploy:
       restart_policy:
         condition: on-failure
@@ -102,7 +106,7 @@ services:
       - db-data:/var/lib/mysql
 
   frontend:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     depends_on:
@@ -122,13 +126,14 @@ services:
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
     ports:
       - "8080:8080"
 
   queue-long:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -140,11 +145,12 @@ services:
       - --queue
       - long,default,short
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -156,6 +162,7 @@ services:
       - --queue
       - short,default
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
@@ -180,7 +187,7 @@ services:
       - redis-cache-data:/data
 
   scheduler:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -190,11 +197,12 @@ services:
       - bench
       - schedule
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
   websocket:
-    image: frappe/erpnext:v15.45.5
+    image: frappe-custom
     networks:
       - frappe_network
     deploy:
@@ -204,6 +212,7 @@ services:
       - node
       - /home/frappe/frappe-bench/apps/frappe/socketio.js
     volumes:
+      - apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
 
@@ -211,6 +220,7 @@ volumes:
   db-data:
   redis-queue-data:
   redis-cache-data:
+  apps:
   sites:
   logs:
 

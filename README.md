@@ -86,7 +86,7 @@ Replace image and erpnext install command in pwd.yml.
 
 ```sh
 sed -i 's|frappe/erpnext:v15.45.5|frappe-custom:latest' pwd.yml
-sed -i 's|--install-app erpnext|--install-app custom|g' pwd.yml
+# sed -i 's|--install-app erpnext|--install-app custom|g' pwd.yml
 ```
 
 ## Start services
@@ -122,6 +122,33 @@ Then run: `docker compose -f pwd.yml up -d`
 Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
 
 If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
+
+## Database restoration
+
+```sh
+bench --site development.localhost restore --admin-password {password} frontend-database.sql.gz
+```
+
+## Create custom app
+
+```sh
+bench new-app custom
+```
+
+## Install custom app
+```sh
+bench --site development.localhost install-app custom
+```
+
+## Migrate database changes
+```sh
+bench --site development.localhost migrate
+```
+
+## Clear app cache
+```sh
+bench --site development.localhost clear-cache
+```
 
 # Documentation
 
