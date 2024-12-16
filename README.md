@@ -18,7 +18,6 @@ git clone https://github.com/frappe/frappe_docker
 cd frappe_docker
 ```
 
-
 ## FOR WINDOWS
 
 ```sh
@@ -51,7 +50,7 @@ docker build \
   --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
   --no-cache \
   --platform=linux/amd64 \
-  --tag=frappe-derlo:latest \
+  --tag=frappe-custom:latest \
   --file=images/custom/Containerfile .
 ```
 
@@ -63,7 +62,7 @@ docker images
 
 ### Run the docker image in the background using the -d tag
 ```sh
-docker run -d frappe-derlo:latest
+docker run -d frappe-custom:latest
 ```
 
 ### List running images to get the container id of our image
@@ -71,14 +70,14 @@ docker run -d frappe-derlo:latest
 docker ps
 ```
 
-### exec into the container to check if all apps are in the image
+### Exec into the container to check if all apps are in the image
 ```sh
 docker exec -it {CONTAINER_ID} /bin/bash
 ```
 
 ## Push image
 ```sh
-docker push frappe-derlo:latest
+docker push frappe-custom:latest
 ```
 
 ## Try image
@@ -86,20 +85,20 @@ docker push frappe-derlo:latest
 Replace image and erpnext install command in pwd.yml.
 
 ```sh
-sed -i 's|frappe/erpnext:v15.45.5|frappe-derlo:latest' pwd.yml
-sed -i 's|--install-app erpnext|--install-app derlo|g' pwd.yml
+sed -i 's|frappe/erpnext:v15.45.5|frappe-custom:latest' pwd.yml
+sed -i 's|--install-app erpnext|--install-app custom|g' pwd.yml
 ```
 
 ## Start services
 
 ```sh
-docker compose -p frappe-derlo -f pwd.yml up -d
+docker compose -p frappe-custom -f pwd.yml up -d
 ```
 
 Check site logs
 
 ```sh
-docker logs gameplan-create-site-1 -f
+docker logs frappe-custom-create-site-1 -f
 ```
 
 Open site http://localhost:8080
